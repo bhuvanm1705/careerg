@@ -1,14 +1,13 @@
-import gradio as gr
-from huggingface_hub import InferenceClient
-
 import os
 from openai import OpenAI
+import gradio as gr
 
-
-# Set up OpenAI API key (to be provided via Hugging Face Secrets)
+# Set up OpenAI API key from environment variable
 API_KEY = os.getenv("OPENAI_API_KEY")
 if not API_KEY:
-    raise ValueError("OPENAI_API_KEY environment variable not set. Please add it in the Space's Secrets settings.")
+    raise ValueError("OPENAI_API_KEY not set. Add it in Hugging Face Space Secrets.")
+
+# Initialize OpenAI client with minimal arguments
 client = OpenAI(api_key=API_KEY)
 
 def generate_career_plan(education, skills, internships, interests, goals):
@@ -37,12 +36,11 @@ def generate_career_plan(education, skills, internships, interests, goals):
                 {"role": "user", "content": prompt}
             ],
             max_tokens=1500,
-            temperature=0.7,
-            top_p=1.0
+            temperature=0.7
         )
         return response.choices[0].message.content
     except Exception as e:
-        return f"Error: {str(e)}. Check your API key or network connection."
+        return f"Error: {str(e)}. Check your API key or try again later."
 
 # Gradio interface
 with gr.Blocks(title="Career Guidance Chatbot") as demo:
@@ -53,9 +51,9 @@ with gr.Blocks(title="Career Guidance Chatbot") as demo:
         with gr.Column():
             education = gr.Textbox(label="Engineering Education (e.g., Computer Science, Mechanical)")
             skills = gr.Textbox(label="Skills (e.g., Python, CAD, project management)")
-            internships = gr.Textbox(label="Internships/Experience (e.g., 3 months at XYZ Corp, software dev)")
+            internships = gr.Textbox(label="Internships/Experience (e.g., 3 months at XYZ Corp)")
             interests = gr.Textbox(label="Interests (e.g., AI, robotics, sustainable energy)")
-            goals = gr.Textbox(label="Career Goals (e.g., become a data scientist, start a tech company)")
+            goals = gr.Textbox(label="Career Goals (e.g., become a data scientist)")
             submit_btn = gr.Button("Generate Career Plan")
         
         with gr.Column():
