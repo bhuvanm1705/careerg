@@ -2,11 +2,9 @@ import os
 import http.client
 import gradio as gr
 import json
-
-# Set up RapidAPI key from environment variable
-RAPIDAPI_KEY = os.getenv("RAPIDAPI_KEY")
-if not RAPIDAPI_KEY:
-    raise ValueError("RAPIDAPI_KEY not set. Add it in Hugging Face Space Secrets.")
+# Set up NASA API key from environment variable
+API_KEY = os.getenv("NASA_API_KEY", "DEMO_KEY")  # Default to DEMO_KEY if not set
+BASE_URL = "https://api.nasa.gov/planetary/apod"
 
 def generate_career_plan(education, skills, internships, interests, goals):
     """Generate a dynamic career plan using Infinite GPT API."""
