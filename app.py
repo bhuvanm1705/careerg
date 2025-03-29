@@ -1,20 +1,16 @@
 import os
-from openai import OpenAI
+import http.client
 import gradio as gr
+import json
 
-# Set up DeepSeek API key from environment variable
-API_KEY = os.getenv("DEEPSEEK_API_KEY")
-if not API_KEY:
-    raise ValueError("DEEPSEEK_API_KEY not set. Add it in Hugging Face Space Secrets.")
-
-# Initialize OpenAI client with DeepSeek's base URL
-client = OpenAI(
-    api_key=API_KEY,
-    base_url="https://api.deepseek.com"
-)
+# Set up RapidAPI key from environment variable
+RAPIDAPI_KEY = os.getenv("RAPIDAPI_KEY")
+if not RAPIDAPI_KEY:
+    raise ValueError("RAPIDAPI_KEY not set. Add it in Hugging Face Space Secrets.")
 
 def generate_career_plan(education, skills, internships, interests, goals):
-    """Generate a dynamic career plan using DeepSeek API based on user inputs."""
+    """Generate a dynamic career plan using Infinite GPT API."""
+    # Construct the prompt
     prompt = (
         f"You are a highly knowledgeable career advisor. Create a detailed, actionable career plan "
         f"tailored to the following user inputs:\n"
@@ -31,25 +27,43 @@ def generate_career_plan(education, skills, internships, interests, goals):
         f"5. Resources: Recommended courses, books, or tools (be specific).\n"
         f"Ensure the plan is concise, practical, and directly reflects the user's inputs."
     )
-    
+
+    # Set up the HTTP connection to Infinite GPT API
+    conn = http.client.HTTPSConnection("infinite-gpt.p.rapidapi.com")
+    headers = {
+        'x-rapidapi-key': RAPIDAPI_KEY,
+        'x-rapidapi-host': "infinite-gpt.p.rapidapi.com",
+        'Content-Type': "application/json"
+    }
+    payload = json.dumps({"query": prompt, "sysMsg": "You are a friendly and expert career advisor."})
+
     try:
-        response = client.chat.completions.create(
-            model="deepseek-chat",  # DeepSeek-V3 for general-purpose responses
-            messages=[
-                {"role": "system", "content": "You are a career advisor with expertise across all fields."},
-                {"role": "user", "content": prompt}
-            ],
-            max_tokens=1500,
-            temperature=0.7
-        )
-        return response.choices[0].message.content
+        # Make the POST request
+        conn.request("POST", "/infinite-gpt", payload, headers)
+        res = conn.getresponse()
+        
+        # Check if the response is successful
+        if res.status != 200:
+            return f"Error: API request failed with status {res.status} - {res.reason}"
+        
+        # Decode and parse the response
+        data = res.read().decode("utf-8")
+        try:
+            response_json = json.loads(data)
+            # Assuming the API returns the generated text in a 'response' field (adjust based on actual API spec)
+            career_plan = response_json.get("response", "Error: No response field in API output")
+            return career_plan
+        except json.JSONDecodeError:
+            return f"Error: Invalid JSON response from API - {data}"
     except Exception as e:
-        return f"Error: {str(e)}. Check your API key or try again later."
+        return f"Error: {str(e)}. Check your API key or network connection."
+    finally:
+        conn.close()
 
 # Gradio interface
 with gr.Blocks(title="Career Guidance Chatbot") as demo:
     gr.Markdown("# Career Guidance Chatbot")
-    gr.Markdown("Enter your details below to get a personalized career plan tailored to your inputs.")
+    gr.Markdown("Enter your details below to get a personalized career plan powered by Infinite GPT.")
     
     with gr.Row():
         with gr.Column():
