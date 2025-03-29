@@ -6,7 +6,7 @@ from openai import OpenAI
 
 
 # Set up OpenAI API key (to be provided via Hugging Face Secrets)
-API_KEY = os.getenv("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")
+API_KEY = os.getenv("OPENAI_API_KEY")
 if not API_KEY:
     raise ValueError("OPENAI_API_KEY environment variable not set. Please add it in the Space's Secrets settings.")
 client = OpenAI(api_key=API_KEY)
