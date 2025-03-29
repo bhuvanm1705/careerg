@@ -1,64 +1,71 @@
 import gradio as gr
 from huggingface_hub import InferenceClient
 
-"""
-For more information on `huggingface_hub` Inference API support, please check the docs: https://huggingface.co/docs/huggingface_hub/v0.22.2/en/guides/inference
-"""
-client = InferenceClient("HuggingFaceH4/zephyr-7b-beta")
+import os
+from openai import OpenAI
 
 
-def respond(
-    message,
-    history: list[tuple[str, str]],
-    system_message,
-    max_tokens,
-    temperature,
-    top_p,
-):
-    messages = [{"role": "system", "content": system_message}]
+# Set up OpenAI API key (to be provided via Hugging Face Secrets)
+API_KEY = os.getenv("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")
+if not API_KEY:
+    raise ValueError("OPENAI_API_KEY environment variable not set. Please add it in the Space's Secrets settings.")
+client = OpenAI(api_key=API_KEY)
 
-    for val in history:
-        if val[0]:
-            messages.append({"role": "user", "content": val[0]})
-        if val[1]:
-            messages.append({"role": "assistant", "content": val[1]})
+def generate_career_plan(education, skills, internships, interests, goals):
+    """Generate a career plan using OpenAI API."""
+    prompt = (
+        f"As a career advisor, provide a detailed career plan for a student with:\n"
+        f"- Engineering Education: {education}\n"
+        f"- Skills: {skills}\n"
+        f"- Internships/Experience: {internships}\n"
+        f"- Interests: {interests}\n"
+        f"- Career Goals: {goals}\n\n"
+        f"Include:\n"
+        f"1. Short-term steps (1-2 years)\n"
+        f"2. Long-term steps (3-5 years)\n"
+        f"3. Job roles to target\n"
+        f"4. Skills to learn\n"
+        f"5. Resources (courses, books, etc.)\n"
+        f"Keep it concise, actionable, and tailored."
+    )
+    
+    try:
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are a highly knowledgeable career advisor."},
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=1500,
+            temperature=0.7,
+            top_p=1.0
+        )
+        return response.choices[0].message.content
+    except Exception as e:
+        return f"Error: {str(e)}. Check your API key or network connection."
 
-    messages.append({"role": "user", "content": message})
+# Gradio interface
+with gr.Blocks(title="Career Guidance Chatbot") as demo:
+    gr.Markdown("# Career Guidance Chatbot")
+    gr.Markdown("Enter your details below to get a personalized career plan powered by OpenAI.")
+    
+    with gr.Row():
+        with gr.Column():
+            education = gr.Textbox(label="Engineering Education (e.g., Computer Science, Mechanical)")
+            skills = gr.Textbox(label="Skills (e.g., Python, CAD, project management)")
+            internships = gr.Textbox(label="Internships/Experience (e.g., 3 months at XYZ Corp, software dev)")
+            interests = gr.Textbox(label="Interests (e.g., AI, robotics, sustainable energy)")
+            goals = gr.Textbox(label="Career Goals (e.g., become a data scientist, start a tech company)")
+            submit_btn = gr.Button("Generate Career Plan")
+        
+        with gr.Column():
+            output = gr.Markdown(label="Your Career Plan")
+    
+    submit_btn.click(
+        fn=generate_career_plan,
+        inputs=[education, skills, internships, interests, goals],
+        outputs=output
+    )
 
-    response = ""
-
-    for message in client.chat_completion(
-        messages,
-        max_tokens=max_tokens,
-        stream=True,
-        temperature=temperature,
-        top_p=top_p,
-    ):
-        token = message.choices[0].delta.content
-
-        response += token
-        yield response
-
-
-"""
-For information on how to customize the ChatInterface, peruse the gradio docs: https://www.gradio.app/docs/chatinterface
-"""
-demo = gr.ChatInterface(
-    respond,
-    additional_inputs=[
-        gr.Textbox(value="You are a friendly Chatbot.", label="System message"),
-        gr.Slider(minimum=1, maximum=2048, value=512, step=1, label="Max new tokens"),
-        gr.Slider(minimum=0.1, maximum=4.0, value=0.7, step=0.1, label="Temperature"),
-        gr.Slider(
-            minimum=0.1,
-            maximum=1.0,
-            value=0.95,
-            step=0.05,
-            label="Top-p (nucleus sampling)",
-        ),
-    ],
-)
-
-
-if __name__ == "__main__":
-    demo.launch()
+# Launch the app
+demo.launch()
