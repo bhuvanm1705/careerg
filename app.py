@@ -1,13 +1,17 @@
 import os
-import http.client
+import google.generativeai as genai
 import gradio as gr
-import json
-# Set up NASA API key from environment variable
-API_KEY = os.getenv("NASA_API_KEY", "DEMO_KEY")  # Default to DEMO_KEY if not set
-BASE_URL = "https://api.nasa.gov/planetary/apod"
+
+# Set up Google API key from environment variable
+API_KEY = os.getenv("GOOGLE_API_KEY")
+if not API_KEY:
+    raise ValueError("GOOGLE_API_KEY not set. Add it in Hugging Face Space Secrets.")
+
+# Configure the Google Generative AI client
+genai.configure(api_key=API_KEY)
 
 def generate_career_plan(education, skills, internships, interests, goals):
-    """Generate a dynamic career plan using Infinite GPT API."""
+    """Generate a dynamic career plan using Google Gemini API."""
     # Construct the prompt
     prompt = (
         f"You are a highly knowledgeable career advisor. Create a detailed, actionable career plan "
@@ -26,42 +30,22 @@ def generate_career_plan(education, skills, internships, interests, goals):
         f"Ensure the plan is concise, practical, and directly reflects the user's inputs."
     )
 
-    # Set up the HTTP connection to Infinite GPT API
-    conn = http.client.HTTPSConnection("infinite-gpt.p.rapidapi.com")
-    headers = {
-        'x-rapidapi-key': RAPIDAPI_KEY,
-        'x-rapidapi-host': "infinite-gpt.p.rapidapi.com",
-        'Content-Type': "application/json"
-    }
-    payload = json.dumps({"query": prompt, "sysMsg": "You are a friendly and expert career advisor."})
-
     try:
-        # Make the POST request
-        conn.request("POST", "/infinite-gpt", payload, headers)
-        res = conn.getresponse()
+        # Initialize the Gemini model
+        model = genai.GenerativeModel("gemini-1.5-flash")  # Adjust model name if needed
+        response = model.generate_content(prompt)
         
-        # Check if the response is successful
-        if res.status != 200:
-            return f"Error: API request failed with status {res.status} - {res.reason}"
-        
-        # Decode and parse the response
-        data = res.read().decode("utf-8")
-        try:
-            response_json = json.loads(data)
-            # Assuming the API returns the generated text in a 'response' field (adjust based on actual API spec)
-            career_plan = response_json.get("response", "Error: No response field in API output")
-            return career_plan
-        except json.JSONDecodeError:
-            return f"Error: Invalid JSON response from API - {data}"
+        # Check if response is valid
+        if not response.text:
+            return "Error: No response generated. Check API key or model availability."
+        return response.text
     except Exception as e:
         return f"Error: {str(e)}. Check your API key or network connection."
-    finally:
-        conn.close()
 
 # Gradio interface
 with gr.Blocks(title="Career Guidance Chatbot") as demo:
     gr.Markdown("# Career Guidance Chatbot")
-    gr.Markdown("Enter your details below to get a personalized career plan powered by Infinite GPT.")
+    gr.Markdown("Enter your details to get a personalized career plan powered by Google Gemini.")
     
     with gr.Row():
         with gr.Column():
