@@ -10,20 +10,19 @@ if not API_KEY:
 # Configure the Google Generative AI client
 genai.configure(api_key=API_KEY)
 
-def generate_career_plan(education, skills, internships, interests, goals):
-    """Generate a dynamic career plan using Google Gemini API."""
-    # Construct the prompt
+def generate_career_plan(education, skills, internships, interests):
+    """Generate a dynamic career plan using Google Gemini API without career goals."""
+    # Construct the prompt without career goals
     prompt = (
         f"You are a highly knowledgeable career advisor. Create a detailed, actionable career plan "
         f"tailored to the following user inputs:\n"
         f"- Engineering Education: {education}\n"
         f"- Skills: {skills}\n"
         f"- Internships/Experience: {internships}\n"
-        f"- Interests: {interests}\n"
-        f"- Career Goals: {goals}\n\n"
+        f"- Interests: {interests}\n\n"
         f"Structure the plan as follows:\n"
         f"1. Short-term steps (1-2 years): Specific actions to build on their skills and experience.\n"
-        f"2. Long-term steps (3-5 years): Steps to achieve their career goals.\n"
+        f"2. Long-term steps (3-5 years): Steps to advance their career based on interests and background.\n"
         f"3. Job roles to target: Relevant positions based on their profile.\n"
         f"4. Skills to learn: New skills to acquire for success.\n"
         f"5. Resources: Recommended courses, books, or tools (be specific).\n"
@@ -42,7 +41,7 @@ def generate_career_plan(education, skills, internships, interests, goals):
     except Exception as e:
         return f"Error: {str(e)}. Check your API key or network connection."
 
-# Gradio interface
+# Gradio interface without Career Goals
 with gr.Blocks(title="Career Guidance Chatbot") as demo:
     gr.Markdown("# Career Guidance Chatbot")
     gr.Markdown("Enter your details to get a personalized career plan powered by Google Gemini.")
@@ -53,7 +52,6 @@ with gr.Blocks(title="Career Guidance Chatbot") as demo:
             skills = gr.Textbox(label="Skills (e.g., Python, CAD, project management)")
             internships = gr.Textbox(label="Internships/Experience (e.g., 3 months at XYZ Corp)")
             interests = gr.Textbox(label="Interests (e.g., AI, robotics, sustainable energy)")
-            goals = gr.Textbox(label="Career Goals (e.g., become a data scientist)")
             submit_btn = gr.Button("Generate Career Plan")
         
         with gr.Column():
@@ -61,7 +59,7 @@ with gr.Blocks(title="Career Guidance Chatbot") as demo:
     
     submit_btn.click(
         fn=generate_career_plan,
-        inputs=[education, skills, internships, interests, goals],
+        inputs=[education, skills, internships, interests],
         outputs=output
     )
 
