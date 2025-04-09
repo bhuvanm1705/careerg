@@ -14,20 +14,23 @@ def generate_career_plan(education, skills, internships, interests):
     """Generate a dynamic career plan using Google Gemini API without career goals."""
     # Construct the prompt without career goals
     prompt = (
-        f"You are a highly knowledgeable career advisor. Create a detailed, actionable career plan "
-        f"tailored to the following user inputs:\n"
-        f"- Engineering Education: {education}\n"
-        f"- Skills: {skills}\n"
-        f"- Internships/Experience: {internships}\n"
-        f"- Interests: {interests}\n\n"
-        f"Structure the plan as follows:\n"
-        f"1. Short-term steps (1-2 years): Specific actions to build on their skills and experience.\n"
-        f"2. Long-term steps (3-5 years): Steps to advance their career based on interests and background.\n"
-        f"3. Job roles to target: Relevant positions based on their profile.\n"
-        f"4. Skills to learn: New skills to acquire for success.\n"
-        f"5. Resources: Recommended courses, books, or tools (be specific).\n"
-        f"Ensure the plan is concise, practical, and directly reflects the user's inputs."
-    )
+    f"You are a highly knowledgeable career advisor. Create a detailed, actionable career plan "
+    f"tailored to the following user inputs:\n"
+    f"- Engineering Education: {education}\n"
+    f"- Skills: {skills}\n"
+    f"- Internships/Experience: {internships}\n"
+    f"- Interests: {interests}\n\n"
+    f"Structure the plan as follows:\n"
+    f"1. Short-term steps (1-2 years): Break this section down into:\n"
+    f"   a. Immediate actions (0–3 months): Quick wins or high-impact tasks based on their current skills.\n"
+    f"   b. Mid-term steps (5–8 months): Actions to deepen expertise, expand network, or build relevant experience.\n"
+    f"   c. Longer short-term (1–2 years): Projects, certifications, or job transitions to solidify the foundation.\n"
+    f"2. Long-term steps (3–5 years): Steps to advance their career based on interests and background.\n"
+    f"3. Job roles to target: Relevant positions based on their profile.\n"
+    f"4. Skills to learn: New skills to acquire for success.\n"
+    f"5. Resources: Recommended courses, books, or tools (be specific).\n"
+    f"Ensure the plan is concise, practical, and directly reflects the user's inputs."
+)
 
     try:
         # Initialize the Gemini model
