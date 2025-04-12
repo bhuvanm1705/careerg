@@ -21,7 +21,7 @@ def generate_career_plan(education, skills, internships, interests):
     f"- Internships/Experience: {internships}\n"
     f"- Interests: {interests}\n\n"
     f"Structure the plan as follows:\n"
-    f"1. Short-term steps (1-2 years): Break this section down into:\n"
+    f"1. Short-term steps : Break this section down into:\n"
     f"   a. Immediate actions (0–3 months): Quick wins or high-impact tasks based on their current skills.\n"
     f"   b. Mid-term steps (5–8 months): Actions to deepen expertise, expand network, or build relevant experience.\n"
     f"   c. Longer short-term (1–2 years): Projects, certifications, or job transitions to solidify the foundation.\n"
@@ -47,7 +47,7 @@ def generate_career_plan(education, skills, internships, interests):
 # Gradio interface without Career Goals
 with gr.Blocks(title="Career Guidance Chatbot") as demo:
     gr.Markdown("# Career Guidance Chatbot")
-    gr.Markdown("Enter your details to get a personalized career plan powered by Google Gemini.")
+    gr.Markdown("Enter your details to get a personalized career plan powered by Google Gemini."WAIT For 10 Sec"")
     
     with gr.Row():
         with gr.Column():
