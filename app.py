@@ -47,7 +47,7 @@ def generate_career_plan(education, skills, internships, interests):
 # Gradio interface without Career Goals
 with gr.Blocks(title="Career Guidance Chatbot") as demo:
     gr.Markdown("# Career Guidance Chatbot")
-    gr.Markdown("Enter your details to get a personalized career plan powered by Google Gemini."WAIT For 10 Sec"")
+    gr.Markdown("Enter your details to get a personalized career plan powered by Google Gemini.Response :WAIT For 10 Sec..")
     
     with gr.Row():
         with gr.Column():
