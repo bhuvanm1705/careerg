@@ -13,7 +13,7 @@ st.markdown("---")
 # Safely get the GOOGLE_API_KEY from Streamlit Secrets
 # The key must be defined in your Streamlit secrets file (see Step 3)
 try:
-    API_KEY = st.secrets["GOOGLE_API_KEY"]
+    API_KEY = st.secrets["GOOGLE_API_KEY"]  # <<< Check this string carefully
 except KeyError:
     st.error("Error: GOOGLE_API_KEY not found in Streamlit secrets.")
     st.markdown("Please configure the key in the Streamlit cloud settings or a local `.streamlit/secrets.toml` file.")
