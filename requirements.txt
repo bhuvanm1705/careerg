@@ -6,3 +6,4 @@ google-generativeai>=0.7.0
 gradio>=4.31.0
 streamlit
 google-generativeai
+groq
