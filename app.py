@@ -13,11 +13,14 @@ st.markdown("---")
 # Safely get the GOOGLE_API_KEY from Streamlit Secrets
 # The key must be defined in your Streamlit secrets file (see Step 3)
 try:
-    API_KEY = st.secrets["GOOGLE_API_KEY"]  # <<< Check this string carefully
+    API_KEY = st.secrets["GROQ_API_KEY"]
 except KeyError:
-    st.error("Error: GOOGLE_API_KEY not found in Streamlit secrets.")
-    st.markdown("Please configure the key in the Streamlit cloud settings or a local `.streamlit/secrets.toml` file.")
+    st.error("Error: GROQ_API_KEY not found in Streamlit secrets.")
+    st.markdown("Please configure the key in the Streamlit cloud settings as `GROQ_API_KEY`.")
     st.stop()
+
+# Configure the Groq client
+client = Groq(api_key=API_KEY) # Initialize Groq Client
 
 # Configure the Google Generative AI client
 genai.configure(api_key=API_KEY)
