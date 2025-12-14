@@ -49,7 +49,7 @@ def generate_career_plan(education, skills, internships, interests):
         # Call the Groq Chat Completions API
         chat_completion = client.chat.completions.create(
             # Using a fast, high-performance Groq model
-            model="llama3-70b-8192", 
+            model="llama-3.1-8b-instant", 
             messages=[
                 {"role": "user", "content": prompt}
             ],
