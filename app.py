@@ -1,17 +1,16 @@
 import streamlit as st
 import os
-import google.generativeai as genai
+# Import only the Groq SDK
+from groq import Groq 
 
 # --- 1. Streamlit Configuration and Secret Management ---
 
-# Set up page config
-st.set_page_config(page_title="Career Guidance Chatbot", layout="wide")
+st.set_page_config(page_title="Career Guidance Chatbot (Powered by Groq)", layout="wide")
 st.title("Career Guidance Chatbot")
-st.markdown("Enter your details to get a personalized career plan powered by Google Gemini.")
+st.markdown("Enter your details to get a personalized career plan powered by **Groq**. 🚀")
 st.markdown("---")
 
-# Safely get the GOOGLE_API_KEY from Streamlit Secrets
-# The key must be defined in your Streamlit secrets file (see Step 3)
+# Safely get the GROQ_API_KEY from Streamlit Secrets
 try:
     API_KEY = st.secrets["GROQ_API_KEY"]
 except KeyError:
@@ -19,18 +18,14 @@ except KeyError:
     st.markdown("Please configure the key in the Streamlit cloud settings as `GROQ_API_KEY`.")
     st.stop()
 
-# Configure the Groq client
+# Configure the Groq client only
 client = Groq(api_key=API_KEY) # Initialize Groq Client
 
-# Configure the Google Generative AI client
-genai.configure(api_key=API_KEY)
-
-# --- 2. Core Logic Function (Reused from Gradio App) ---
+# --- 2. Core Logic Function (Updated for Groq) ---
 
 def generate_career_plan(education, skills, internships, interests):
-    """Generate a dynamic career plan using Google Gemini API."""
+    """Generate a dynamic career plan using the Groq API."""
     
-    # Construct the detailed prompt
     prompt = (
         f"You are a highly knowledgeable career advisor. Create a detailed, actionable career plan "
         f"tailored to the following user inputs:\n"
@@ -39,7 +34,7 @@ def generate_career_plan(education, skills, internships, interests):
         f"- Internships/Experience: {internships}\n"
         f"- Interests: {interests}\n\n"
         f"Structure the plan as follows:\n"
-        f"1. Short-term steps : Break this section down into:\n"
+        f"1. Short-term steps: Break this section down into:\n"
         f"   a. Immediate actions (0–3 months): Quick wins or high-impact tasks based on their current skills.\n"
         f"   b. Mid-term steps (5–8 months): Actions to deepen expertise, expand network, or build relevant experience.\n"
         f"   c. Longer short-term (1–2 years): Projects, certifications, or job transitions to solidify the foundation.\n"
@@ -51,54 +46,50 @@ def generate_career_plan(education, skills, internships, interests):
     )
 
     try:
-        # Initialize the Gemini model
-        model = genai.GenerativeModel("gemini-1.5-flash")  # Reusing model name
-        response = model.generate_content(prompt)
+        # Call the Groq Chat Completions API
+        chat_completion = client.chat.completions.create(
+            # Using a fast, high-performance Groq model
+            model="llama3-8b-8192", 
+            messages=[
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.7,
+        )
         
-        # Check if response is valid
-        if not response.text:
+        response_text = chat_completion.choices[0].message.content
+        
+        if not response_text:
             return "Error: No response generated. Check API key or model availability."
         
-        # Return the generated plan as a string
-        return response.text
+        return response_text
     
     except Exception as e:
         return f"Error: {str(e)}. Check your API key or network connection."
 
-# --- 3. Streamlit UI Implementation ---
+# --- 3. Streamlit UI Implementation (No Changes Needed) ---
 
-# Create columns for input and output, similar to your gr.Row()
 col1, col2 = st.columns(2)
 
 with col1:
-    # Use st.text_area for multi-line inputs, st.text_input for single lines
     education = st.text_input(label="Engineering Education (e.g., Computer Science, Mechanical)")
     skills = st.text_area(label="Skills (e.g., Python, CAD, project management)")
     internships = st.text_area(label="Internships/Experience (e.g., 3 months at XYZ Corp)")
     interests = st.text_area(label="Interests (e.g., AI, robotics, sustainable energy)")
-    
-    # Streamlit button
     submit_btn = st.button("Generate Career Plan", type="primary")
 
 with col2:
     st.subheader("Your Personalized Career Plan")
-    # Placeholder for the output
     output_placeholder = st.empty()
 
-# --- 4. Streamlit Action Logic ---
+# --- 4. Streamlit Action Logic (Updated Spinner Text) ---
 
 if submit_btn:
-    # Check if essential fields are filled
     if not all([education, skills, internships, interests]):
         output_placeholder.warning("Please fill in all the input fields to generate the plan.")
     else:
-        # Use a spinner while the API call is running
-        with st.spinner("Generating plan... This may take up to 10 seconds."):
+        with st.spinner("Generating plan... This will be super fast! 🚀"):
             plan = generate_career_plan(education, skills, internships, interests)
-            
-            # Display the result in the output column
             output_placeholder.markdown(plan)
 
-# Optional: Add a note at the end
 st.markdown("---")
-st.caption("Powered by Google Gemini and Streamlit.")
+st.caption("Powered by Groq and Streamlit.")
