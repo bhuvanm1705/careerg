@@ -7,7 +7,7 @@ from groq import Groq
 
 st.set_page_config(page_title="Career Guidance Chatbot (Powered by Groq)", layout="wide")
 st.title("Career Guidance Chatbot")
-st.markdown("Enter your details to get a personalized career plan powered by **Groq**. 🚀")
+st.markdown("Enter your details to get a personalized career plan powered by **Gemini**. 🚀")
 st.markdown("---")
 
 # Safely get the GROQ_API_KEY from Streamlit Secrets
@@ -92,4 +92,4 @@ if submit_btn:
             output_placeholder.markdown(plan)
 
 st.markdown("---")
-st.caption("Powered by Groq and Streamlit.")
+st.caption("Powered by Gemini and Streamlit.")
